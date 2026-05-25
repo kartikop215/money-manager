@@ -75,7 +75,7 @@ function Dashboard() {
       try {
 
         const res = await fetch(
-          "http://localhost:5000/api/expenses",
+          "https://kartik-money-manager.onrender.com/api/expenses",
           {
             headers: {
               Authorization: localStorage.getItem("token"),
@@ -182,7 +182,7 @@ const addExpense = async () => {
       localStorage.getItem("token");
 
     const res = await fetch(
-      "http://localhost:5000/api/expenses",
+      "https://kartik-money-manager.onrender.com/api/expenses",
       {
         method: "POST",
 
@@ -264,7 +264,7 @@ const addExpense = async () => {
     try {
 
       await fetch(
-        `http://localhost:5000/api/expenses/${_id}`,
+        `https://kartik-money-manager.onrender.com/api/expenses/${_id}`,
         {
           method: "DELETE",
 
@@ -381,7 +381,7 @@ const addExpense = async () => {
   try {
 
     const res = await fetch(
-      "http://localhost:5000/api/expenses",
+      "https://kartik-money-manager.onrender.com/api/expenses",
       {
         method: "POST",
 
@@ -447,7 +447,7 @@ const addExpense = async () => {
     try {
 
       const res = await fetch(
-        "http://localhost:5000/api/ai/chat",
+        "https://kartik-money-manager.onrender.com/api/ai/chat",
         {
           method: "POST",
 

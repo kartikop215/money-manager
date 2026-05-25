@@ -14,7 +14,7 @@ function Signup() {
 
   const handleSignup = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch("https://kartik-money-manager.onrender.com/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

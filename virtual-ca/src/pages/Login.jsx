@@ -21,7 +21,7 @@ function Login() {
   try {
 
     const res = await fetch(
-      "http://localhost:5000/api/auth/login",
+      "https://kartik-money-manager.onrender.com/api/auth/login",
       {
         method: "POST",
 
