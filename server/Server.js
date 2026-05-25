@@ -1,4 +1,5 @@
 console.log("🔥 NEW SERVER FILE RUNNING");
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -14,7 +15,7 @@ app.use(express.json());
 
 
 // ✅ LOCAL MONGODB (NO ENV)
-mongoose.connect("mongodb://127.0.0.1:27017/moneyManager")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.log(err));
 
@@ -196,4 +197,8 @@ app.get("/", (req, res) => {
   res.send("Server running");
 });
 
-app.listen(5000, () => console.log("🚀 Server running on 5000"));
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on ${PORT}`)
+);;
