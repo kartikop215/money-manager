@@ -15,18 +15,20 @@ import {
 
 function Dashboard() {
 
-  useEffect(() => {
+ useEffect(() => {
 
   const token = localStorage.getItem("token");
 
-  if (!token) {
+  console.log("TOKEN:", token);
+
+  if (!token || token === "undefined") {
 
     window.location.href = "/login";
   }
 
 }, []);
 
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const [budget, setBudget] = useState(
     Number(JSON.parse(localStorage.getItem("budget"))) || 10000
