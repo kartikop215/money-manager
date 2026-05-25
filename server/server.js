@@ -115,17 +115,54 @@ app.post("/api/auth/signup", async (req, res) => {
 
 // LOGIN
 app.post("/api/auth/login", async (req, res) => {
-  const { phone, password } = req.body;
 
-  const user = await User.findOne({ phone });
-  if (!user) return res.json({ message: "User not found" });
+  try {
 
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.json({ message: "Wrong password" });
+    console.log("LOGIN BODY:", req.body);
 
-  const token = jwt.sign({ id: user._id }, "secret123");
+    const { phone, password } = req.body;
 
-  res.json({ token, user });
+    const user = await User.findOne({ phone });
+
+    console.log("USER FOUND:", user);
+
+    if (!user) {
+      return res.json({
+        message: "User not found",
+      });
+    }
+
+    const ok = await bcrypt.compare(password, user.password);
+
+    console.log("PASSWORD MATCH:", ok);
+
+    if (!ok) {
+      return res.json({
+        message: "Wrong password",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id },
+      "secret123"
+    );
+
+    console.log("TOKEN CREATED");
+
+    res.json({
+      token,
+      user,
+    });
+
+  } catch (err) {
+
+    console.log("LOGIN ERROR:", err);
+
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
+  }
 });
 
 // EXPENSES
