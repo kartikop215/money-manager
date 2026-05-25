@@ -1,0 +1,124 @@
+/* 🌌 BACKGROUND */
+.wrapper {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  background: radial-gradient(circle at 20% 30%, #1e3a8a, transparent),
+              radial-gradient(circle at 80% 70%, #9333ea, transparent),
+              #020617;
+}
+
+/* LEFT SIDE */
+.left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  color: white;
+}
+
+/* SMALL TEXT */
+.eyebrow {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* TITLE */
+.title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 40px;
+  margin: 20px 0;
+}
+
+/* DESCRIPTION */
+.copy {
+  color: #cbd5f5;
+  line-height: 1.6;
+}
+
+/* RIGHT SIDE */
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CARD */
+.card {
+  width: 400px;
+
+  background: rgba(255,255,255,0.06);
+  padding: 30px;
+  border-radius: 20px;
+
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* KICKER */
+.kicker {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* HEADING */
+.heading {
+  font-family: "Space Grotesk", sans-serif;
+  color: #fff;
+  margin: 10px 0 20px;
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* LABEL */
+.label {
+  color: #94a3b8;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+/* INPUT */
+input {
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.1);
+
+  background: rgba(255,255,255,0.08);
+  color: white;
+}
+
+/* BUTTON */
+.button {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 30px;
+  border: none;
+
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .left {
+    display: none;
+  }
+}
