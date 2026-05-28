@@ -41,6 +41,7 @@ function Login() {
     console.log("LOGIN:", data);
 
     if (data.token) {
+if (data.token) {
 
   localStorage.setItem(
     "token",
@@ -51,6 +52,18 @@ function Login() {
     "user",
     JSON.stringify(data.user)
   );
+
+  console.log(
+    "TOKEN SAVED:",
+    localStorage.getItem("token")
+  );
+
+  setTimeout(() => {
+
+    window.location.href = "/dashboard";
+
+  }, 500);
+}
 
   alert("Login success");
 
