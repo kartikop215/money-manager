@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
+
   const navigate = useNavigate();
 
   const [phone, setPhone] = useState("");
@@ -9,105 +10,112 @@ function Login() {
 
   const handleLogin = async (e) => {
 
-  if (e) e.preventDefault();
+    e.preventDefault();
 
-  if (!phone || !password) {
+    if (!phone || !password) {
 
-    alert("Enter phone and password");
-
-    return;
-  }
-
-  try {
-
-    const res = await fetch(
-      "https://kartik-money-manager.onrender.com/api/auth/login",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          phone,
-          password,
-        }),
-      }
-    );
-
-    const data = await res.json();
-    console.log(data);
-
-    console.log("LOGIN:", data);
-
-    if (data.token) {
-if (data.token) {
-
-  localStorage.setItem(
-    "token",
-    data.token
-  );
-
-  localStorage.setItem(
-    "user",
-    JSON.stringify(data.user)
-  );
-
-  console.log(
-    "TOKEN SAVED:",
-    localStorage.getItem("token")
-  );
-
-  setTimeout(() => {
-
-    window.location.href = "/dashboard";
-
-  }, 500);
-}
-
-  alert("Login success");
-
-      window.location.href = "/dashboard";
-
-    } else {
-
-      alert(
-        data.message ||
-        "Login failed"
-      );
+      alert("Enter phone and password");
+      return;
     }
 
-  } catch (err) {
+    try {
 
-    console.log(err);
+      const res = await fetch(
+        "https://kartik-money-manager.onrender.com/api/auth/login",
+        {
+          method: "POST",
 
-    alert("Server error");
-  }
-};
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            phone,
+            password,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      console.log("LOGIN RESPONSE:", data);
+
+      // ✅ LOGIN SUCCESS
+      if (data.token) {
+
+        // SAVE TOKEN
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+
+        // SAVE USER
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+
+        console.log(
+          "TOKEN SAVED:",
+          localStorage.getItem("token")
+        );
+
+        alert("Login success");
+
+        // SMALL DELAY
+        setTimeout(() => {
+
+          navigate("/dashboard");
+
+        }, 500);
+
+      } else {
+
+        alert(
+          data.message ||
+          "Login failed"
+        );
+      }
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Server error");
+    }
+  };
+
   return (
+
     <div className="auth-layout">
+
       <h2>Login</h2>
 
-      <input
-        placeholder="Phone"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-      />
+      <form onSubmit={handleLogin}>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) =>
+            setPhone(e.target.value)
+          }
+        />
 
-     <button
-  type="button"
-  onClick={handleLogin}
->
-  Login
-</button>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+        />
+
+        <button type="submit">
+          Login
+        </button>
+
+      </form>
+
     </div>
   );
 }
