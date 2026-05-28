@@ -15,55 +15,83 @@ import {
 
 function Dashboard() {
 
- useEffect(() => {
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
 
-  const token = localStorage.getItem("token");
-
-  console.log("TOKEN:", token);
-
-  if (!token || token === "undefined") {
-
-    window.location.href = "/login";
-  }
-
-}, []);
-
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // =========================
+  // STATES
+  // =========================
 
   const [budget, setBudget] = useState(
-    Number(JSON.parse(localStorage.getItem("budget"))) || 10000
+    Number(
+      JSON.parse(
+        localStorage.getItem("budget")
+      )
+    ) || 10000
   );
 
-  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [isEditingBudget, setIsEditingBudget] =
+    useState(false);
 
-  const [newBudget, setNewBudget] = useState(budget);
+  const [newBudget, setNewBudget] =
+    useState(budget);
 
-  // ✅ SAFE ARRAY
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] =
+    useState([]);
 
-  const [fixedExpenses, setFixedExpenses] = useState(
-    JSON.parse(localStorage.getItem("fixedExpenses")) || []
-  );
+  const [fixedExpenses, setFixedExpenses] =
+    useState(
+      JSON.parse(
+        localStorage.getItem(
+          "fixedExpenses"
+        ) || "[]"
+      )
+    );
 
-  const [dailyBudget, setDailyBudget] = useState(0);
+  const [dailyBudget, setDailyBudget] =
+    useState(0);
 
   // EXPENSE
   const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
+  const [amount, setAmount] =
+    useState("");
+  const [category, setCategory] =
+    useState("");
 
   // FIXED
-  const [fixedTitle, setFixedTitle] = useState("");
-  const [fixedAmount, setFixedAmount] = useState("");
+  const [fixedTitle, setFixedTitle] =
+    useState("");
+
+  const [fixedAmount, setFixedAmount] =
+    useState("");
+
+  // EDIT FIXED
+  const [editingIndex, setEditingIndex] =
+    useState(null);
+
+  const [editTitle, setEditTitle] =
+    useState("");
+
+  const [editAmount, setEditAmount] =
+    useState("");
 
   // 🤖 VIRTUAL CA
-  const [caAmount, setCaAmount] = useState("");
-  const [caPurpose, setCaPurpose] = useState("");
-  const [caAdvice, setCaAdvice] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [caAmount, setCaAmount] =
+    useState("");
+
+  const [caPurpose, setCaPurpose] =
+    useState("");
+
+  const [caAdvice, setCaAdvice] =
+    useState(null);
+
+  const [showConfirm, setShowConfirm] =
+    useState(false);
 
   // 🤖 AI CHAT
   const [chat, setChat] = useState([]);
+
   const [input, setInput] = useState("");
 
   // =========================
@@ -80,25 +108,28 @@ function Dashboard() {
           "https://kartik-money-manager.onrender.com/api/expenses",
           {
             headers: {
-              Authorization: localStorage.getItem("token"),
+              Authorization:
+                localStorage.getItem(
+                  "token"
+                ),
             },
           }
         );
 
         const data = await res.json();
 
-        console.log("FETCH:", data);
-
-        // ✅ SAFE CHECK
         if (Array.isArray(data)) {
+
           setExpenses(data);
+
         } else {
+
           setExpenses([]);
         }
 
       } catch (err) {
 
-        console.log("FETCH ERROR:", err);
+        console.log(err);
 
         setExpenses([]);
       }
@@ -114,24 +145,31 @@ function Dashboard() {
 
   const totalSpent =
     (expenses || []).reduce(
-      (s, e) => s + Number(e.amount || 0),
+      (s, e) =>
+        s + Number(e.amount || 0),
       0
     ) +
     (fixedExpenses || []).reduce(
-      (s, e) => s + Number(e.amount || 0),
+      (s, e) =>
+        s + Number(e.amount || 0),
       0
     );
 
-  const remaining = budget - totalSpent;
-
-  const usagePercent = Math.round(
-    ((totalSpent / budget) * 100) || 0
+  const remaining = Math.max(
+    budget - totalSpent,
+    0
   );
+
+  const usagePercent = budget
+    ? Math.round(
+        (totalSpent / budget) * 100
+      )
+    : 0;
 
   useEffect(() => {
 
     const safeDaily = Math.floor(
-      (remaining || 0) / 30
+      remaining / 30
     );
 
     setDailyBudget(safeDaily);
@@ -147,118 +185,98 @@ function Dashboard() {
 
   if (totalSpent > budget) {
 
-    alertMessage = "❌ You have exceeded your budget!";
+    alertMessage =
+      "❌ You have exceeded your budget!";
+
     alertType = "danger";
 
   } else if (usagePercent > 90) {
 
-    alertMessage = "⚠️ Critical: Almost at your limit!";
+    alertMessage =
+      "⚠️ Critical: Almost at your limit!";
+
     alertType = "warning";
 
   } else if (usagePercent > 70) {
 
-    alertMessage = "⚠️ Caution: You're spending fast";
+    alertMessage =
+      "⚠️ Caution: You're spending fast";
+
     alertType = "warning";
 
   } else {
 
-    alertMessage = "✅ You're managing your budget well";
+    alertMessage =
+      "✅ You're managing your budget well";
+
     alertType = "safe";
   }
 
   // =========================
   // ADD EXPENSE
   // =========================
-const addExpense = async () => {
 
-  if (!title || !amount) {
+  const addExpense = async () => {
 
-    alert("Enter all fields");
+    if (!title || !amount) {
 
-    return;
-  }
+      alert("Enter all fields");
 
-  try {
-
-    const token =
-      localStorage.getItem("token");
-
-    const res = await fetch(
-      "https://kartik-money-manager.onrender.com/api/expenses",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          Authorization: token,
-        },
-
-        body: JSON.stringify({
-          title: title.trim(),
-
-          amount: Number(amount),
-
-          category:
-            category || "General",
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    console.log("ADD RESPONSE:", data);
-
-    // ✅ VALIDATION
-    if (data && data._id) {
-
-      const newExpense = {
-
-        _id: data._id,
-
-        title:
-          data.title ||
-          title,
-
-        amount:
-          Number(
-            data.amount
-          ) || Number(amount),
-
-        category:
-          data.category ||
-          category ||
-          "General",
-      };
-
-      setExpenses((prev) => [
-        ...prev,
-        newExpense,
-      ]);
-
-    } else {
-
-      alert(
-        data.message ||
-          "Expense failed"
-      );
+      return;
     }
 
-    setTitle("");
-    setAmount("");
-    setCategory("");
+    try {
 
-  } catch (err) {
+      const res = await fetch(
+        "https://kartik-money-manager.onrender.com/api/expenses",
+        {
+          method: "POST",
 
-    console.log(err);
+          headers: {
+            "Content-Type":
+              "application/json",
 
-    alert("Server error");
-  }
-};
+            Authorization:
+              localStorage.getItem(
+                "token"
+              ),
+          },
+
+          body: JSON.stringify({
+            title: title.trim(),
+
+            amount: Number(amount),
+
+            category:
+              category || "General",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data && data._id) {
+
+        setExpenses((prev) => [
+          ...prev,
+          data,
+        ]);
+      }
+
+      setTitle("");
+      setAmount("");
+      setCategory("");
+
+    } catch (err) {
+
+      console.log(err);
+
+      alert("Server error");
+    }
+  };
 
   // =========================
-  // DELETE
+  // DELETE EXPENSE
   // =========================
 
   const deleteExpense = async (_id) => {
@@ -271,13 +289,18 @@ const addExpense = async () => {
           method: "DELETE",
 
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              localStorage.getItem(
+                "token"
+              ),
           },
         }
       );
 
       setExpenses(
-        expenses.filter((e) => e._id !== _id)
+        expenses.filter(
+          (e) => e._id !== _id
+        )
       );
 
     } catch (err) {
@@ -292,7 +315,11 @@ const addExpense = async () => {
 
   const addFixedExpense = () => {
 
-    if (!fixedTitle || !fixedAmount) return;
+    if (
+      !fixedTitle ||
+      !fixedAmount
+    )
+      return;
 
     const updated = [
       ...fixedExpenses,
@@ -311,6 +338,53 @@ const addExpense = async () => {
 
     setFixedTitle("");
     setFixedAmount("");
+  };
+
+  const deleteFixedExpense = (index) => {
+
+    const updated =
+      fixedExpenses.filter(
+        (_, i) => i !== index
+      );
+
+    setFixedExpenses(updated);
+
+    localStorage.setItem(
+      "fixedExpenses",
+      JSON.stringify(updated)
+    );
+  };
+
+  const startEdit = (item, index) => {
+
+    setEditingIndex(index);
+
+    setEditTitle(item.title);
+
+    setEditAmount(item.amount);
+  };
+
+  const saveEdit = () => {
+
+    const updated = [...fixedExpenses];
+
+    updated[editingIndex] = {
+      title: editTitle,
+      amount: Number(editAmount),
+    };
+
+    setFixedExpenses(updated);
+
+    localStorage.setItem(
+      "fixedExpenses",
+      JSON.stringify(updated)
+    );
+
+    setEditingIndex(null);
+
+    setEditTitle("");
+
+    setEditAmount("");
   };
 
   // =========================
@@ -347,25 +421,20 @@ const addExpense = async () => {
 
     if (amt > remaining) {
 
-      suggestion = "❌ This exceeds your budget.";
-      prediction = "You may enter deficit.";
+      suggestion =
+        "❌ This exceeds your budget.";
 
-    } else if (usagePercent > 85) {
-
-      suggestion = "⚠️ Near your limit.";
-      prediction = "High overspending risk.";
-      canProceed = true;
-
-    } else if (amt > dailyBudget * 2) {
-
-      suggestion = "⚠️ Above your daily average.";
-      prediction = "May disturb monthly balance.";
-      canProceed = true;
+      prediction =
+        "You may enter deficit.";
 
     } else {
 
-      suggestion = "✅ Safe expense.";
-      prediction = `Projected spend ₹${totalSpent + amt}`;
+      suggestion =
+        "✅ Safe expense.";
+
+      prediction =
+        `Projected spend ₹${totalSpent + amt}`;
+
       canProceed = true;
     }
 
@@ -377,116 +446,129 @@ const addExpense = async () => {
     setShowConfirm(canProceed);
   };
 
-  // ✅ FIXED PROCEED
-  const proceedExpense = async () => {
+  const proceedExpense =
+    async () => {
 
-  try {
+      try {
 
-    const res = await fetch(
-      "https://kartik-money-manager.onrender.com/api/expenses",
-      {
-        method: "POST",
+        const res = await fetch(
+          "https://kartik-money-manager.onrender.com/api/expenses",
+          {
+            method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
+            headers: {
+              "Content-Type":
+                "application/json",
 
-          Authorization:
-            localStorage.getItem("token"),
-        },
+              Authorization:
+                localStorage.getItem(
+                  "token"
+                ),
+            },
 
-        body: JSON.stringify({
-          title:
-            caPurpose || "AI Expense",
+            body: JSON.stringify({
+              title:
+                caPurpose ||
+                "AI Expense",
 
-          amount:
-            Number(caAmount),
+              amount:
+                Number(caAmount),
 
-          category:
-            "AI Suggested",
-        }),
-      }
-    );
+              category:
+                "AI Suggested",
+            }),
+          }
+        );
 
-    const data = await res.json();
+        const data =
+          await res.json();
 
-    console.log("AI EXPENSE:", data);
+        if (data && data._id) {
 
-    // ✅ SAFE UPDATE
-    if (data && data._id) {
-
-      setExpenses((prev) => [
-        ...prev,
-        data,
-      ]);
-    }
-
-    setShowConfirm(false);
-
-    setCaAmount("");
-    setCaPurpose("");
-
-  } catch (err) {
-
-    console.log(err);
-
-    alert("Failed to add AI expense");
-  }
-};
-
-  // =========================
-  // 🤖 AI CHAT
-  // =========================
-
-  const sendMessage = async (msg = input) => {
-
-    if (!msg) return;
-
-    setChat((prev) => [
-      ...prev,
-      { role: "user", text: msg },
-    ]);
-
-    try {
-
-      const res = await fetch(
-        "https://kartik-money-manager.onrender.com/api/ai/chat",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"),
-          },
-
-          body: JSON.stringify({
-            message: msg,
-          }),
+          setExpenses((prev) => [
+            ...prev,
+            data,
+          ]);
         }
-      );
 
-      const data = await res.json();
+        setShowConfirm(false);
+
+        setCaAmount("");
+        setCaPurpose("");
+
+      } catch (err) {
+
+        console.log(err);
+      }
+    };
+
+  // =========================
+  // AI CHAT
+  // =========================
+
+  const sendMessage =
+    async (msg = input) => {
+
+      if (!msg) return;
 
       setChat((prev) => [
         ...prev,
         {
-          role: "ai",
-          text: data.reply || "No response",
+          role: "user",
+          text: msg,
         },
       ]);
 
-    } catch {
+      try {
 
-      setChat((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          text: "⚠️ AI not responding",
-        },
-      ]);
-    }
+        const res = await fetch(
+          "https://kartik-money-manager.onrender.com/api/ai/chat",
+          {
+            method: "POST",
 
-    setInput("");
-  };
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                localStorage.getItem(
+                  "token"
+                ),
+            },
+
+            body: JSON.stringify({
+              message: msg,
+            }),
+          }
+        );
+
+        const data =
+          await res.json();
+
+        setChat((prev) => [
+          ...prev,
+          {
+            role: "ai",
+            text:
+              data.reply ||
+              "No response",
+          },
+        ]);
+
+      } catch {
+
+        setChat((prev) => [
+          ...prev,
+          {
+            role: "ai",
+            text:
+              "⚠️ AI not responding",
+          },
+        ]);
+      }
+
+      setInput("");
+    };
 
   const quickQuestions = [
     "Can I spend this amount?",
@@ -498,21 +580,14 @@ const addExpense = async () => {
   // CHARTS
   // =========================
 
-  const chartData = (expenses || [])
-  .filter(
-    (e) =>
-      e &&
-      e.title &&
-      e.amount
-  )
-  .slice(-6)
-  .map((e) => ({
-
-    name: e.title,
-
-    amount:
-      Number(e.amount) || 0,
-  }));
+  const chartData =
+    (expenses || [])
+      .slice(-6)
+      .map((e) => ({
+        name: e.title,
+        amount:
+          Number(e.amount) || 0,
+      }));
 
   const pieData = [
     {
@@ -521,27 +596,75 @@ const addExpense = async () => {
     },
     {
       name: "Remaining",
-      value: remaining > 0 ? remaining : 0,
+      value: remaining,
     },
   ];
 
-  const COLORS = ["#7c3aed", "#22c55e"];
+  const COLORS = [
+    "#7c3aed",
+    "#22c55e",
+  ];
 
   return (
+
     <div className={styles.dashboardWrapper}>
 
       <div className={styles.dashboard}>
 
         <h2 className={styles.heading}>
-          Welcome {user.name || "User"}
+          Welcome{" "}
+          {user?.name || "User"}
         </h2>
 
         {/* STATS */}
         <div className={styles.stats}>
 
           <div className={styles["stat-card"]}>
+
             <span>Total Budget</span>
-            <h2>₹{budget}</h2>
+
+            {isEditingBudget ? (
+
+              <>
+
+                <input
+                  type="number"
+                  value={newBudget}
+                  onChange={(e) =>
+                    setNewBudget(
+                      e.target.value
+                    )
+                  }
+                />
+
+                <button
+                  onClick={saveBudget}
+                >
+                  Save
+                </button>
+
+              </>
+
+            ) : (
+
+              <>
+
+                <h2>₹{budget}</h2>
+
+                <button
+                  onClick={() =>
+                    setIsEditingBudget(
+                      true
+                    )
+                  }
+                >
+                  Edit Budget
+                </button>
+
+              </>
+
+            )}
+
           </div>
 
           <div className={styles["stat-card"]}>
@@ -607,10 +730,12 @@ const addExpense = async () => {
                 >
 
                   {pieData.map((entry, index) => (
+
                     <Cell
                       key={index}
                       fill={COLORS[index]}
                     />
+
                   ))}
 
                 </Pie>
@@ -621,65 +746,49 @@ const addExpense = async () => {
 
             </ResponsiveContainer>
 
-            <div className={styles.legend}>
-              <p>
-                <span style={{ color: "#7c3aed" }}>
-                  ■
-                </span>{" "}
-                Spent
-              </p>
-
-              <p>
-                <span style={{ color: "#22c55e" }}>
-                  ■
-                </span>{" "}
-                Remaining
-              </p>
-            </div>
-
           </div>
 
         </div>
 
-        {/* EXPENSE TRACKER */}
+        {/* EXPENSES */}
         <div className={styles.card}>
 
           <h3>Expense Tracker</h3>
 
           {(expenses || []).map((e, index) => (
 
-  <div
-    key={e._id || index}
-    className={styles["table-row"]}
-  >
+            <div
+              key={e._id || index}
+              className={styles["table-row"]}
+            >
 
-    <div>
-      <strong>
-        {e.title || "Untitled"}
-      </strong>
-    </div>
+              <div>
+                <strong>
+                  {e.title}
+                </strong>
+              </div>
 
-    <div>
-      {e.category || "General"}
-    </div>
+              <div>
+                {e.category}
+              </div>
 
-    <div>
+              <div>
 
-      ₹{Number(e.amount) || 0}
+                ₹{e.amount}
 
-      <button
-        onClick={() =>
-          deleteExpense(e._id)
-        }
-      >
-        ❌
-      </button>
+                <button
+                  onClick={() =>
+                    deleteExpense(e._id)
+                  }
+                >
+                  ❌
+                </button>
 
-    </div>
+              </div>
 
-  </div>
+            </div>
 
-))}
+          ))}
 
         </div>
 
@@ -727,10 +836,73 @@ const addExpense = async () => {
 
             <h3>Fixed Expenses</h3>
 
-            {fixedExpenses.map((f, i) => (
+            {(fixedExpenses || []).map((f, i) => (
 
-              <div key={i}>
-                {f.title} ₹{f.amount}
+              <div
+                key={i}
+                style={{
+                  marginBottom: "10px",
+                }}
+              >
+
+                {editingIndex === i ? (
+
+                  <>
+
+                    <input
+                      value={editTitle}
+                      onChange={(e) =>
+                        setEditTitle(
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <input
+                      value={editAmount}
+                      onChange={(e) =>
+                        setEditAmount(
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <button
+                      onClick={saveEdit}
+                    >
+                      Save
+                    </button>
+
+                  </>
+
+                ) : (
+
+                  <>
+
+                    <div>
+                      {f.title} ₹{f.amount}
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        startEdit(f, i)
+                      }
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteFixedExpense(i)
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </>
+
+                )}
+
               </div>
 
             ))}
@@ -739,7 +911,9 @@ const addExpense = async () => {
               placeholder="Name"
               value={fixedTitle}
               onChange={(e) =>
-                setFixedTitle(e.target.value)
+                setFixedTitle(
+                  e.target.value
+                )
               }
             />
 
@@ -748,17 +922,21 @@ const addExpense = async () => {
               placeholder="Amount"
               value={fixedAmount}
               onChange={(e) =>
-                setFixedAmount(e.target.value)
+                setFixedAmount(
+                  e.target.value
+                )
               }
             />
 
-            <button onClick={addFixedExpense}>
+            <button
+              onClick={addFixedExpense}
+            >
               Add Fixed
             </button>
 
           </div>
 
-          {/* 🤖 VIRTUAL CA */}
+          {/* AI */}
           <div className={styles.card}>
 
             <h3>🤖 Virtual CA</h3>
@@ -767,7 +945,9 @@ const addExpense = async () => {
               placeholder="Amount"
               value={caAmount}
               onChange={(e) =>
-                setCaAmount(e.target.value)
+                setCaAmount(
+                  e.target.value
+                )
               }
             />
 
@@ -775,7 +955,9 @@ const addExpense = async () => {
               placeholder="Purpose"
               value={caPurpose}
               onChange={(e) =>
-                setCaPurpose(e.target.value)
+                setCaPurpose(
+                  e.target.value
+                )
               }
             />
 
@@ -785,13 +967,20 @@ const addExpense = async () => {
 
             {caAdvice && (
               <>
-                <p>{caAdvice.suggestion}</p>
-                <p>{caAdvice.prediction}</p>
+                <p>
+                  {caAdvice.suggestion}
+                </p>
+
+                <p>
+                  {caAdvice.prediction}
+                </p>
               </>
             )}
 
             {showConfirm && (
-              <button onClick={proceedExpense}>
+              <button
+                onClick={proceedExpense}
+              >
                 Proceed Anyway
               </button>
             )}
@@ -802,7 +991,9 @@ const addExpense = async () => {
 
               <button
                 key={i}
-                onClick={() => sendMessage(q)}
+                onClick={() =>
+                  sendMessage(q)
+                }
               >
                 {q}
               </button>
@@ -811,7 +1002,7 @@ const addExpense = async () => {
 
             <div className={styles.chatBox}>
 
-              {chat.map((c, i) => (
+              {(chat || []).map((c, i) => (
 
                 <div key={i}>
                   {c.text}
@@ -825,11 +1016,17 @@ const addExpense = async () => {
               placeholder="Ask AI..."
               value={input}
               onChange={(e) =>
-                setInput(e.target.value)
+                setInput(
+                  e.target.value
+                )
               }
             />
 
-            <button onClick={() => sendMessage()}>
+            <button
+              onClick={() =>
+                sendMessage()
+              }
+            >
               Send
             </button>
 

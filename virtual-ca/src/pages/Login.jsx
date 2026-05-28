@@ -1,24 +1,46 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Login() {
 
-  const navigate = useNavigate();
+  // =========================
+  // STATES
+  // =========================
 
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // =========================
+  // LOGIN FUNCTION
+  // =========================
 
   const handleLogin = async (e) => {
 
     e.preventDefault();
 
+    // VALIDATION
     if (!phone || !password) {
 
-      alert("Enter phone and password");
+      alert(
+        "Please enter phone and password"
+      );
+
       return;
     }
 
     try {
+
+      setLoading(true);
+
+      console.log(
+        "SENDING LOGIN..."
+      );
 
       const res = await fetch(
         "https://kartik-money-manager.onrender.com/api/auth/login",
@@ -26,22 +48,29 @@ function Login() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
 
           body: JSON.stringify({
-            phone,
-            password,
+            phone: phone.trim(),
+            password: password.trim(),
           }),
         }
       );
 
       const data = await res.json();
 
-      console.log("LOGIN RESPONSE:", data);
+      console.log(
+        "LOGIN RESPONSE:",
+        data
+      );
 
-      // ✅ LOGIN SUCCESS
-      if (data.token) {
+      // =========================
+      // SUCCESS
+      // =========================
+
+      if (data?.token) {
 
         // SAVE TOKEN
         localStorage.setItem(
@@ -52,36 +81,66 @@ function Login() {
         // SAVE USER
         localStorage.setItem(
           "user",
-          JSON.stringify(data.user)
+          JSON.stringify(
+            data.user || {}
+          )
         );
 
         console.log(
-          "TOKEN SAVED:",
-          localStorage.getItem("token")
+          "TOKEN AFTER SAVE:",
+          localStorage.getItem(
+            "token"
+          )
         );
 
-        alert("Login success");
+        // CHECK TOKEN
+        const savedToken =
+          localStorage.getItem(
+            "token"
+          );
 
-        // SMALL DELAY
-        setTimeout(() => {
+        if (
+          savedToken &&
+          savedToken !== "undefined"
+        ) {
 
-          navigate("/dashboard");
+          alert(
+            "Login successful"
+          );
 
-        }, 500);
+          // REDIRECT
+          window.location.href =
+            "/dashboard";
+
+        } else {
+
+          alert(
+            "Token save failed"
+          );
+        }
 
       } else {
 
         alert(
-          data.message ||
-          "Login failed"
+          data?.message ||
+            "Invalid credentials"
         );
       }
 
     } catch (err) {
 
-      console.log(err);
+      console.log(
+        "LOGIN ERROR:",
+        err
+      );
 
-      alert("Server error");
+      alert(
+        "Server error. Try again."
+      );
+
+    } finally {
+
+      setLoading(false);
     }
   };
 
@@ -89,32 +148,70 @@ function Login() {
 
     <div className="auth-layout">
 
-      <h2>Login</h2>
+      <div className="auth-card">
 
-      <form onSubmit={handleLogin}>
+        <h2>Login</h2>
 
-        <input
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) =>
-            setPhone(e.target.value)
-          }
-        />
+        {/* FORM */}
+        <form
+          onSubmit={handleLogin}
+        >
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-        />
+          {/* PHONE */}
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) =>
+              setPhone(
+                e.target.value
+              )
+            }
+          />
 
-        <button type="submit">
-          Login
-        </button>
+          {/* PASSWORD */}
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(
+                e.target.value
+              )
+            }
+          />
 
-      </form>
+          {/* BUTTON */}
+          <button
+            type="submit"
+            disabled={loading}
+          >
+
+            {loading
+              ? "Logging in..."
+              : "Login"}
+
+          </button>
+
+        </form>
+
+        {/* SIGNUP */}
+        <p
+          style={{
+            marginTop: "15px",
+          }}
+        >
+
+          Don’t have an account?
+          {" "}
+
+          <Link to="/signup">
+            Signup
+          </Link>
+
+        </p>
+
+      </div>
 
     </div>
   );

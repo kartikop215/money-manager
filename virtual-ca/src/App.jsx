@@ -1,7 +1,13 @@
 import React from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import Sidebar from "./components/Sidebar"; // ✅ NEW
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
+import Sidebar from "./components/Sidebar";
 
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
@@ -11,31 +17,60 @@ import Profile from "./pages/Profile";
 import Reports from "./pages/Reports";
 import Signup from "./pages/Signup";
 
-import { isAuthenticated } from "./services/Fakeauth";
+import {
+  isAuthenticated,
+} from "./services/Fakeauth";
 
-// 🔐 PROTECTED ROUTE
-const ProtectedRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
+// PROTECTED
+const ProtectedRoute = ({
+  children,
+}) => {
+
+  const auth =
+    isAuthenticated();
+
+  console.log(
+    "IS AUTHENTICATED:",
+    auth
+  );
+
+  return auth
+    ? children
+    : <Navigate to="/login" />;
 };
-
 function App() {
+
   return (
+
     <BrowserRouter>
 
-      {/* 🔥 NEW LAYOUT */}
       <div className="layout">
 
-        {/* SIDEBAR */}
         <Sidebar />
 
-        {/* MAIN CONTENT */}
         <div className="main">
 
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+
+            <Route
+              path="/"
+              element={<Home />}
+            />
+
+            <Route
+              path="/signup"
+              element={<Signup />}
+            />
+
+            <Route
+              path="/login"
+              element={<Login />}
+            />
+
+            <Route
+              path="/onboarding"
+              element={<Onboarding />}
+            />
 
             <Route
               path="/dashboard"
@@ -63,9 +98,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
           </Routes>
 
         </div>
+
       </div>
 
     </BrowserRouter>

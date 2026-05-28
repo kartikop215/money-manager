@@ -21,9 +21,9 @@ function Home() {
             <button className="btn" onClick={() => navigate("/signup")}>
               Open your workspace
             </button>
-            <button className="btn-secondary" onClick={() => navigate("/login")}>
-              Sign in
-            </button>
+            {/* <button className="btn-secondary" onClick={() => navigate("/login")}> */}
+              {/* Sign in */}
+            {/* </button> */}
           </div>
 
           <div className="hero-metrics">
